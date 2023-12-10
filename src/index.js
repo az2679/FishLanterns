@@ -2,6 +2,7 @@ import './style.css';
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+import { gsap } from 'gsap';
 
 import { MapControls } from 'three/addons/controls/MapControls';
 import { FirstPersonControls } from 'three/addons/controls/FirstPersonControls';
@@ -125,6 +126,24 @@ sphereMesh.position.x = -10;
 
 const loader = new GLTFLoader();
 
+//random number
+function randomInt(min, max) {
+  return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
+function randomDirection() {
+  return Math.random() > 0.5 ? 1 : -1;
+}
+
+function randomIntCondition(min, max) {
+  // const x = randomInt(min, max) * randomDirection();
+  // const y = randomInt(min, max) * randomDirection();
+  // const z = randomInt(min, max) * randomDirection();
+  // return { x, y, z };
+
+  return randomInt(min, max) * randomDirection();
+}
+
 /*                                               ASSET: FISH LANTERN + FLAME                                          */
 
 const fishLanternGroup = new THREE.Group();
@@ -157,6 +176,10 @@ loader.load(
     fishLight1.position.set(gltf.scene.position.x - 10, gltf.scene.position.y + 40, gltf.scene.position.z + 5);
     fishLight2.position.set(gltf.scene.position.x + 35, gltf.scene.position.y + 40, gltf.scene.position.z + 5);
 
+    fishLanternGroup.add(gltf.scene);
+    fishLanternGroup.add(fishLight1);
+    fishLanternGroup.add(fishLight2);
+
     // Flame
     loader.load(
       '/flame.glb',
@@ -180,27 +203,14 @@ loader.load(
       }
     );
 
-    // gsap.to(lanternGroup.rotation, {
-    //   y: Math.PI * 2,
-    //   duration: 30,
-    //   repeat: -1,
-    //   ease: 'none',
-    //   // repeatRefresh: true,
-    //   //yoyo: true,
-    // });
-
-    // gsap.to(lanternGroup.position, {
-    //   x: 300,
-    //   duration: 15,
-    //   repeat: -1,
-    //   ease: 'none',
-    //   // repeatRefresh: true,
-    //   yoyo: true,
-    // });
-
-    fishLanternGroup.add(gltf.scene);
-    fishLanternGroup.add(fishLight1);
-    fishLanternGroup.add(fishLight2);
+    gsap.to(fishLanternGroup.position, {
+      y: 10,
+      duration: 5,
+      repeat: -1,
+      ease: 'power2.inOut',
+      // repeatRefresh: true,
+      yoyo: true,
+    });
 
     scene.add(fishLanternGroup);
   },
@@ -311,40 +321,24 @@ let lanterns = [];
 const lanternManager = new THREE.LoadingManager();
 const lanternLoader = new GLTFLoader(lanternManager);
 lanternManager.onLoad = () => {
-  lanternPos();
+  // lanternPos();
 };
 for (let i = 0; i < 7; i++) {
   lanternLoader.load('/paperLantern.glb', (gltf) => {
-    gltf.scene.scale.setScalar(0.15);
-    gltf.scene.position.x = ranIntCond(-300, 300);
-    gltf.scene.position.y = ranInt(30, 400);
-    gltf.scene.position.z = ranIntCond(-300, 300);
-    gltf.scene.rotation.z = ranInt(-1.5, 1.5);
+    gltf.scene.scale.setScalar(0.05);
+    gltf.scene.position.x = randomIntCondition(150, 300);
+    gltf.scene.position.y = randomInt(30, 400);
+    gltf.scene.position.z = randomIntCondition(150, 300);
+    gltf.scene.rotation.z = randomInt(-1.5, 1.5);
     scene.add(gltf.scene);
     lanterns.push(gltf);
   });
 }
 function lanternPos() {
-  // console.log(lanterns);
-  for (let i = 0; i < lanterns.length; i++) {
-    // console.log(lanterns[i].scene.position.x, lanterns[i].scene.position.y, lanterns[i].scene.position.z);
-  }
-}
-
-//random number
-function ranInt(min, max) {
-  return Math.floor(Math.random() * (max - min + 1)) + min;
-}
-function ranIntCond(min, max) {
-  let int;
-  while (true) {
-    int = Math.floor(Math.random() * (max - min + 1)) + min;
-    if (int <= -150 || int >= 150) {
-      break;
-    }
-  }
-  // console.log(int);
-  return int;
+  console.log(lanterns);
+  // for (let i = 0; i < lanterns.length; i++) {
+  // console.log(lanterns[i].scene.position.x, lanterns[i].scene.position.y, lanterns[i].scene.position.z);
+  // }
 }
 
 //
@@ -352,45 +346,45 @@ function ranIntCond(min, max) {
 //
 /*                                      ASSET: CLOUDS                                      */
 
-//cloud test
-const cloudLight = new THREE.PointLight(0xffffff, 20, 100);
-cloudLight.position.set(0, 10, -10);
-// scene.add(cloudLight);
-const cloudLightHelper = new THREE.PointLightHelper(cloudLight, 10);
-// scene.add(cloudLightHelper);
-loader.load(
-  '/cloud.glb',
-  //https://sketchfab.com/3d-models/cloud-test-6d1fff581b3a424d88ee2125f909f3f3
+// //cloud test
+// const cloudLight = new THREE.PointLight(0xffffff, 20, 100);
+// cloudLight.position.set(0, 10, -10);
+// // scene.add(cloudLight);
+// const cloudLightHelper = new THREE.PointLightHelper(cloudLight, 10);
+// // scene.add(cloudLightHelper);
+// loader.load(
+//   '/cloud.glb',
+//   //https://sketchfab.com/3d-models/cloud-test-6d1fff581b3a424d88ee2125f909f3f3
 
-  function (gltf) {
-    console.log(`Cloud gltf: `, gltf);
+//   function (gltf) {
+//     console.log(`Cloud gltf: `, gltf);
 
-    // gltf.scene.traverse(function (el) {
-    //   // console.log('traverse: ', el);
-    //   if (el.isMesh) {
-    //     // console.log('isMesh: ', el);
-    //     // el.material.color.r = 0.5;
-    //     // el.material.color.g = 0.5;
-    //     // el.material.color.b = 0.5;
-    //   }
-    // });
+//     // gltf.scene.traverse(function (el) {
+//     //   // console.log('traverse: ', el);
+//     //   if (el.isMesh) {
+//     //     // console.log('isMesh: ', el);
+//     //     // el.material.color.r = 0.5;
+//     //     // el.material.color.g = 0.5;
+//     //     // el.material.color.b = 0.5;
+//     //   }
+//     // });
 
-    gltf.scene.position.x = 0;
-    gltf.scene.position.y = 0;
-    gltf.scene.position.z = 0;
-    gltf.scene.scale.setScalar(30);
+//     gltf.scene.position.x = 0;
+//     gltf.scene.position.y = 0;
+//     gltf.scene.position.z = 0;
+//     gltf.scene.scale.setScalar(30);
 
-    // scene.add(gltf.scene);
-  },
+//     scene.add(gltf.scene);
+//   },
 
-  function (xhr) {
-    // console.log('Cloud: ' + (xhr.loaded / xhr.total) * 100 + '% loaded');
-  },
-  undefined,
-  function (error) {
-    console.error(error);
-  }
-);
+//   function (xhr) {
+//     // console.log('Cloud: ' + (xhr.loaded / xhr.total) * 100 + '% loaded');
+//   },
+//   undefined,
+//   function (error) {
+//     console.error(error);
+//   }
+// );
 
 //cloud loop
 let clouds = [];
@@ -417,10 +411,10 @@ function cloudPos() {
   //
   clouds[2].scene.position.set(-75, 0, 200);
   clouds[3].scene.position.set(-150, 25, 175);
-
-  clouds[5].scene.position.set(ranIntCond(-500, 500), ranInt(-100, 500), ranIntCond(-500, 500));
-  clouds[6].scene.position.set(ranIntCond(-500, 500), ranInt(-100, 500), ranIntCond(-500, 500));
-  clouds[7].scene.position.set(ranIntCond(-500, 500), ranInt(-100, 500), ranIntCond(-500, 500));
+  //
+  clouds[5].scene.position.set(randomIntCondition(150, 500), randomInt(-100, 500), randomIntCondition(150, 500));
+  clouds[6].scene.position.set(randomIntCondition(150, 500), randomInt(-100, 500), randomIntCondition(150, 500));
+  clouds[7].scene.position.set(randomIntCondition(150, 500), randomInt(-100, 500), randomIntCondition(150, 500));
 }
 
 const cloudLight1 = new THREE.PointLight(0xffffff, 20, 100);
@@ -465,10 +459,8 @@ for (let i = 0; i < 3; i++) {
   const roseGeometry = new THREE.TorusKnotGeometry(5, 3, 85, 6, 20, 1);
   const roseMaterial = new THREE.MeshStandardMaterial({ color: 0xc1121f });
   const rose = new THREE.Mesh(roseGeometry, roseMaterial);
-  rose.position.x = ranIntCond(-300, 300);
-  rose.position.y = ranInt(30, 400);
-  rose.position.z = ranIntCond(-300, 300);
-  rose.rotation.set(ranInt(0, 6.28), ranInt(0, 6.28), ranInt(0, 6.28));
+  rose.position.set(randomIntCondition(150, 300), randomInt(30, 400), randomIntCondition(150, 300));
+  rose.rotation.set(randomInt(0, 6.28), randomInt(0, 6.28), randomInt(0, 6.28));
   const roseMaterialWire = new THREE.MeshStandardMaterial({
     color: 0x780000,
     wireframe: true,
@@ -487,8 +479,8 @@ for (let i = 0; i < 3; i++) {
   const daisyGeometry = new THREE.TorusKnotGeometry(5, 3, 85, 6, 1, 5);
   const daisyMaterial = new THREE.MeshStandardMaterial({ color: 0xf5cac3 });
   const daisy = new THREE.Mesh(daisyGeometry, daisyMaterial);
-  daisy.position.set(ranIntCond(-300, 300), ranInt(30, 400), ranIntCond(-300, 300));
-  daisy.rotation.set(ranInt(0, 6.28), ranInt(0, 6.28), ranInt(0, 6.28));
+  daisy.position.set(randomIntCondition(150, 300), randomInt(30, 400), randomIntCondition(150, 300));
+  daisy.rotation.set(randomInt(0, 6.28), randomInt(0, 6.28), randomInt(0, 6.28));
   scene.add(daisy);
 }
 
@@ -497,15 +489,15 @@ for (let i = 0; i < 3; i++) {
   const starGeometry = new THREE.OctahedronGeometry(5, 0);
   const starMaterial = new THREE.MeshStandardMaterial({ color: 0xf9c74f });
   const star = new THREE.Mesh(starGeometry, starMaterial);
-  star.position.set(ranIntCond(-300, 300), ranInt(30, 400), ranIntCond(-300, 300));
-  star.rotation.set(ranInt(0, 6.28), ranInt(0, 6.28), ranInt(0, 6.28));
+  star.position.set(randomIntCondition(150, 300), randomInt(40, 300), randomIntCondition(150, 300));
+  star.rotation.set(randomInt(0, 6.28), randomInt(0, 6.28), randomInt(0, 6.28));
   scene.add(star);
 
   const star1Geometry = new THREE.IcosahedronGeometry(5, 0);
   const star1Material = new THREE.MeshStandardMaterial({ color: 0xe9f5db });
   const star1 = new THREE.Mesh(star1Geometry, star1Material);
-  star1.position.set(ranIntCond(-300, 300), ranInt(30, 400), ranIntCond(-300, 300));
-  star1.rotation.set(ranInt(0, 6.28), ranInt(0, 6.28), ranInt(0, 6.28));
+  star1.position.set(randomIntCondition(150, 300), randomInt(30, 400), randomIntCondition(150, 300));
+  star1.rotation.set(randomInt(0, 6.28), randomInt(0, 6.28), randomInt(0, 6.28));
   scene.add(star1);
 }
 
