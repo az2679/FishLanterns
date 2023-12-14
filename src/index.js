@@ -38,7 +38,7 @@ const dirLight = new THREE.DirectionalLight(0xcddafd, 0.5);
 dirLight.position.set(0, 50, -100);
 scene.add(dirLight);
 
-for (let i = 0; i < 5; i++) {
+for (let i = 0; i < 10; i++) {
   let randomColL = randomColor({
     luminosity: 'light',
     hue: 'random',
