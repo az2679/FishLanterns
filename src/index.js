@@ -3,6 +3,7 @@ import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { gsap } from 'gsap';
+import randomColor from 'randomcolor'; // https://github.com/davidmerfield/randomColor
 
 import { MapControls } from 'three/addons/controls/MapControls';
 import { FirstPersonControls } from 'three/addons/controls/FirstPersonControls';
@@ -37,17 +38,27 @@ const dirLight = new THREE.DirectionalLight(0xcddafd, 0.5);
 dirLight.position.set(0, 50, -100);
 scene.add(dirLight);
 
-const pointLight1 = new THREE.PointLight(0xff0f7b, 20, 150);
-pointLight1.position.set(50, 125, 10);
-// scene.add(pointLight1);
-const pointLightHelper1 = new THREE.PointLightHelper(pointLight1, 10);
-// scene.add(pointLightHelper1);
+for (let i = 0; i < 10; i++) {
+  let randomColL = randomColor({
+    luminosity: 'light',
+    hue: 'random',
+  });
+  let randomColR = randomColor({
+    luminosity: 'light',
+    hue: 'random',
+  });
+  const pointLight = new THREE.PointLight(randomColL, 10, 100);
+  pointLight.position.set(-randomInt(150, 300), randomInt(100, 300), randomIntCondition(150, 300));
+  scene.add(pointLight);
+  const pointLightHelper = new THREE.PointLightHelper(pointLight, 10);
+  // scene.add(pointLightHelper);
 
-// const hemiLight = new THREE.HemisphereLight(0xf6ae2d, 0xff0a54, 0.2);
-// hemiLight.position.set(200, 140, 0);
-// scene.add(hemiLight);
-// const hemiLightHelper = new THREE.HemisphereLightHelper(hemiLight, 10);
-// scene.add(hemiLightHelper);
+  const pointLightR = new THREE.PointLight(randomColR, 10, 100);
+  pointLightR.position.set(randomInt(150, 300), randomInt(100, 300), randomIntCondition(150, 300));
+  scene.add(pointLightR);
+  const pointLightHelperR = new THREE.PointLightHelper(pointLightR, 10);
+  // scene.add(pointLightHelperR);
+}
 
 // perspective camera
 const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 3000);
@@ -105,24 +116,6 @@ const groundMesh = new THREE.Mesh(groundGeometry, groundMaterial);
 groundMesh.rotation.x = -Math.PI * 0.5;
 scene.add(groundMesh);
 
-// spheres
-const geometry = new THREE.SphereGeometry(5, 128, 128);
-const material = new THREE.MeshPhongMaterial({
-  color: 0xffffff,
-});
-for (let i = 0; i < 30; i++) {
-  const mesh = new THREE.Mesh(geometry, material);
-  mesh.position.z = -i * 100;
-  // scene.add(mesh);
-}
-
-// big sphere
-const sphereMesh = new THREE.Mesh(geometry, material);
-sphereMesh.position.y = 130;
-sphereMesh.position.x = -10;
-// sphereMesh.scale.setScalar(3);
-// scene.add(sphereMesh);
-
 //
 //
 //
@@ -150,6 +143,7 @@ function randomIntCondition(min, max) {
   return randomInt(min, max) * randomDirection();
 }
 
+//floatGroup - v1, float but fish and light in a group (pre-looping loader)
 gsap.registerEffect({
   name: 'floatGroup',
   extendTimeline: true,
@@ -200,6 +194,7 @@ gsap.registerEffect({
   },
 });
 
+//float - v2, float fish and light (looping loader; pre ray casting)
 gsap.registerEffect({
   name: 'float',
   extendTimeline: true,
@@ -225,6 +220,63 @@ gsap.registerEffect({
       )
       .to(targets[0].position, { x: 800, duration: config.duration, ease: 'none' }, '-=1')
       .to(targets[1].position, { x: 800, duration: config.duration, ease: 'none' }, '<')
+      .to(targets[0].children[1].material, { opacity: 0, transparent: true, duration: 1 }, '-=2')
+      .to(targets[0].children[0].material, { opacity: 0, transparent: true, duration: 1 }, '<');
+    // .fromTo(
+    //   targets[0].position,
+    //   { y: targets[0].position.y },
+    //   {
+    //     y: targets[0].position.y + 5,
+    //     duration: 2,
+    //     repeat: 30,
+    //     ease: 'sine.inOut',
+    //     yoyo: true,
+    //   },
+    //   '-=100%'
+    // )
+    // .fromTo(
+    //   targets[1].position,
+    //   { y: targets[1].position.y },
+    //   {
+    //     y: targets[1].position.y + 5,
+    //     duration: 2,
+    //     repeat: -1,
+    //     ease: 'sine.inOut',
+    //     yoyo: true,
+    //   },
+    //   60
+    // );
+    // tl.repeat(-1);
+    return tl;
+  },
+});
+
+//floatChild - v3, float but with light as child to fish (ray casting fish)
+gsap.registerEffect({
+  name: 'floatChild',
+  extendTimeline: true,
+  defaults: {
+    duration: randomInt(45, 60),
+  },
+  effect: (targets, config) => {
+    // console.log(targets);
+    // console.log(targets[0].children[0].material);
+
+    let tl = gsap.timeline({ repeat: -1 });
+
+    tl.fromTo(
+      targets[0].children[1].material,
+      { opacity: 0, transparent: true },
+      { opacity: 1, transparent: false, duration: 1 }
+    )
+      .fromTo(
+        targets[0].children[0].material,
+        { opacity: 0, transparent: true },
+        { opacity: 1, transparent: false, duration: 1 },
+        '<'
+      )
+      .to(targets[0].position, { x: 800, duration: config.duration, ease: 'none' }, '-=1')
+      // .to(targets[0].children[2].position, { x: 800, duration: config.duration, ease: 'none' }, '<')
       .to(targets[0].children[1].material, { opacity: 0, transparent: true, duration: 1 }, '-=2')
       .to(targets[0].children[0].material, { opacity: 0, transparent: true, duration: 1 }, '<');
     // .fromTo(
@@ -378,26 +430,35 @@ loader.load(
 */
 /*                                               ASSET: MINI FISH LANTERN                                          */
 
-for (let i = 0; i < 7; i++) {
+for (let i = 0; i < 20; i++) {
   loader.load('/Fishv8.glb', function (gltf) {
     gltf.scene.position.set(-randomInt(3, 4) * 150, randomInt(25, 300), randomIntCondition(150, 300));
     gltf.scene.rotation.y = Math.PI / 2;
 
-    const randomNum = randomInt(2, 4) / 2;
+    const randomNum = randomInt(2, 6) / 2;
     gltf.scene.scale.setScalar(randomNum);
-    const fishLight = new THREE.PointLight(0xffc8c8, 20, randomNum * 20);
-    fishLight.position.set(gltf.scene.position.x + 5, gltf.scene.position.y + 12.5, gltf.scene.position.z + 2.5);
-
+    const fishLight = new THREE.PointLight(0xffc8c8, 50, randomNum * 20);
+    // fishLight.position.set(gltf.scene.position.x + 5, gltf.scene.position.y + 12.5, gltf.scene.position.z + 2.5);
+    fishLight.position.set(0, 7, 2.5);
+    // console.log(gltf.scene.position);
+    // fishLight.position.copy(gltf.scene.position.x + 5, gltf.scene.position.y + 12.5, gltf.scene.position.z + 2.5);
     const fishLightHelper = new THREE.PointLightHelper(fishLight, 5);
-    scene.add(fishLightHelper);
+    // scene.add(fishLightHelper);
+    gltf.scene.add(fishLight);
 
     gsap.effects
-      .float([gltf.scene, fishLight])
-      .delay(10 * i)
+      .floatChild(gltf.scene)
+      .delay(7 * i)
       .repeat(-1);
 
+    gltf.scene.name = 'fish';
+    fishLight.name = 'fishLight';
+    // gltf.scene.isAnimating = false
+
     scene.add(gltf.scene);
-    scene.add(fishLight);
+
+    // console.log(gltf.scene.children[2].color);
+    // scene.add(fishLight);
   });
 }
 
@@ -690,26 +751,26 @@ function cloudPos() {
   clouds[7].scene.position.set(randomIntCondition(150, 500), randomInt(-100, 500), randomIntCondition(150, 500));
 }
 
-const cloudLight1 = new THREE.PointLight(0xffffff, 20, 100);
-cloudLight1.position.set(150, 100, -225);
+// const cloudLight1 = new THREE.PointLight(0xffffff, 20, 100);
+// cloudLight1.position.set(150, 100, -225);
 // scene.add(cloudLight1);
-const cloudLightHelper1 = new THREE.PointLightHelper(cloudLight1, 10);
+// const cloudLightHelper1 = new THREE.PointLightHelper(cloudLight1, 10);
 // scene.add(cloudLightHelper1);
-const cloudLight2 = new THREE.PointLight(0xffffff, 20, 100);
-cloudLight2.position.set(200, 100, -150);
+// const cloudLight2 = new THREE.PointLight(0xffffff, 20, 100);
+// cloudLight2.position.set(200, 100, -150);
 // scene.add(cloudLight2);
-const cloudLightHelper2 = new THREE.PointLightHelper(cloudLight2, 10);
+// const cloudLightHelper2 = new THREE.PointLightHelper(cloudLight2, 10);
 // scene.add(cloudLightHelper2);
 //
-const cloudLight3 = new THREE.PointLight(0xffffff, 20, 150);
-cloudLight3.position.set(-175, 150, 175);
+// const cloudLight3 = new THREE.PointLight(0xffffff, 20, 150);
+// cloudLight3.position.set(-175, 150, 175);
 // scene.add(cloudLight3);
-const cloudLightHelper3 = new THREE.PointLightHelper(cloudLight3, 10);
+// const cloudLightHelper3 = new THREE.PointLightHelper(cloudLight3, 10);
 // scene.add(cloudLightHelper3);
-const cloudLight4 = new THREE.PointLight(0xffffff, 50, 75);
-cloudLight4.position.set(-40, 75, 250);
+// const cloudLight4 = new THREE.PointLight(0xffffff, 50, 75);
+// cloudLight4.position.set(-40, 75, 250);
 // scene.add(cloudLight4);
-const cloudLightHelper4 = new THREE.PointLightHelper(cloudLight4, 10);
+// const cloudLightHelper4 = new THREE.PointLightHelper(cloudLight4, 10);
 // scene.add(cloudLightHelper4);
 
 //
@@ -880,54 +941,78 @@ const onPointerMove = (event) => {
 };
 window.addEventListener('pointermove', onPointerMove);
 
+let daisy = (position) => {
+  console.log(position);
+  const daisyGeometry = new THREE.TorusKnotGeometry(5, 3, 85, 6, 1, 5);
+  const daisyMaterial = new THREE.MeshStandardMaterial({ color: 0xf5cac3 });
+  const daisy = new THREE.Mesh(daisyGeometry, daisyMaterial);
+  // daisy.position.set(position.x, position.y + 10, position.z + randomInt(10, 15));
+  daisy.position.set(randomIntCondition(200, 400), randomInt(30, 500), randomIntCondition(200, 400));
+  daisy.rotation.set(randomInt(0, 6.28), randomInt(0, 6.28), randomInt(0, 6.28));
+  daisy.scale.setScalar(0.5);
+  gsap.to(daisy.rotation, {
+    x: Math.PI * 2,
+    y: Math.PI * 2,
+    z: Math.PI * 2,
+    duration: 3,
+    repeat: -1,
+    ease: 'none',
+  });
+  scene.add(daisy);
+};
+
+let lantern = () => {
+  loader.load('/paperLantern.glb', (gltf) => {
+    gltf.scene.scale.setScalar(0.05);
+    gltf.scene.position.set(randomIntCondition(150, 300), randomInt(30, 400), randomIntCondition(150, 300));
+    gltf.scene.rotation.z = randomInt(-1.5, 1.5);
+    gsap.to(gltf.scene.rotation, {
+      x: Math.PI * 2,
+      y: Math.PI * 2,
+      z: Math.PI * 2,
+      duration: 3,
+      repeat: -1,
+      ease: 'none',
+    });
+    const lanternLight = new THREE.PointLight(0xc1121f, 20, 150);
+    lanternLight.position.copy(gltf.scene.position);
+    scene.add(lanternLight);
+    scene.add(gltf.scene);
+  });
+};
+
 const onClick = () => {
   if (!INTERSECTED) return;
 
-  if (INTERSECTED.isAnimating) {
-    //reset
-    // gsap.to(INTERSECTED.rotation, {
-    //   y: randomInt(0, 6.28),
-    //   duration: randomInt(1, 10),
-    //   repeatDelay: 5,
-    //   repeat: -1,
-    //   ease: 'none',
-    // });
+  // if (INTERSECTED.isAnimating) {
+  //   const { r, g, b } = new THREE.Color(0xffc8c8);
+  //   gsap.to(INTERSECTED.parent.children[2].color, {
+  //     r,
+  //     g,
+  //     b,
+  //     duration: 1,
+  //     ease: 'power2.inOut',
+  //   });
 
-    gsap.to(INTERSECTED.material.color, {
-      r: 0,
-      g: 0,
-      b: 0,
-      duration: 0.5,
-      ease: 'power2.inOut',
-      overwrite: true,
-    });
-
-    INTERSECTED.isAnimating = false;
-  } else {
-    //effect when it clicked - add point light or  make it spin fade out
-    gsap.to(INTERSECTED.rotation, {
-      y: Math.PI * 4,
-      duration: 0.5,
-      ease: 'power2.inOut',
-      // repeat: -1,
-      // repeatDelay: 2,
-    });
-
-    // const c = randomColor({
-    //   hue: '#0000FF',
-    //   luminosity: 'bright',
-    // });
-    // const { r, g, b } = new THREE.Color(c);
-    // gsap.to(INTERSECTED.material.color, {
-    //   r,
-    //   g,
-    //   b,
-    //   duration: 1,
-    //   ease: 'power2.inOut',
-    // });
-
-    INTERSECTED.isAnimating = true;
-  }
+  //   INTERSECTED.isAnimating = false;
+  // } else {
+  const c = randomColor({
+    // hue: 'red',
+    luminosity: 'bright',
+  });
+  const { r, g, b } = new THREE.Color(c);
+  gsap.to(INTERSECTED.parent.children[2].color, {
+    r,
+    g,
+    b,
+    duration: 1,
+    ease: 'power2.inOut',
+  });
+  // console.log(INTERSECTED);
+  // daisy(INTERSECTED.parent.position); //clutters a bit
+  // lantern(); // this pauses scene each time to load lantern
+  // INTERSECTED.isAnimating = true;
+  // }
 };
 window.addEventListener('click', onClick);
 
@@ -936,20 +1021,21 @@ const clock = new THREE.Clock();
 const animate = () => {
   requestAnimationFrame(animate);
 
-  // raycaster.setFromCamera(pointer, camera);
-  // const intersects = raycaster.intersectObjects(scene.children);
-  // if (intersects.length > 0) {
-  //   if (intersects[0].object.name === 'star1' && INTERSECTED != intersects[0].object) {
-  //     if (INTERSECTED) INTERSECTED.material.emissive.setHex(INTERSECTED.currentHex);
-  //     INTERSECTED = intersects[0].object;
-  //     INTERSECTED.currentHex = INTERSECTED.material.emissive.getHex();
-  //     INTERSECTED.material.emissive.setHex(0x00ffff);
-  //   }
-  // } else {
-  //   if (INTERSECTED) INTERSECTED.material.emissive.setHex(INTERSECTED.currentHex);
-  //   INTERSECTED = null;
-  // }
+  raycaster.setFromCamera(pointer, camera);
+  const intersects = raycaster.intersectObjects(scene.children);
+  if (intersects.length > 0) {
+    if (intersects[0].object.name === 'fish' && INTERSECTED != intersects[0].object) {
+      // if (INTERSECTED) INTERSECTED.material.emissive.setHex(INTERSECTED.currentHex);
 
+      INTERSECTED = intersects[0].object;
+      // INTERSECTED.currentHex = INTERSECTED.material.emissive.getHex();
+      // INTERSECTED.material.emissive.setHex(0x00ffff);
+    }
+  } else {
+    // if (INTERSECTED) INTERSECTED.material.emissive.setHex(INTERSECTED.currentHex);
+    INTERSECTED = null;
+  }
+  // console.log(intersects);
   const delta = clock.getDelta();
   if (flameMixer) flameMixer.update(delta);
   if (mixerKoi) mixerKoi.update(delta);
