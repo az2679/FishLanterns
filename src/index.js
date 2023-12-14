@@ -150,158 +150,54 @@ function randomIntCondition(min, max) {
   return randomInt(min, max) * randomDirection();
 }
 
-// if (fishGroup.position.x >= 100) {
-//   gsap.effects.fadeIn(fishGroup.children[0].children[0].material);
-//   gsap.effects.fadeIn(fishGroup.children[0].children[1].material);
-// }
-// if (fishGroup.position.x >= 700) {
-//   gsap.effects.fadeOut(fishGroup.children[0].children[0].material);
-//   gsap.effects.fadeOut(fishGroup.children[0].children[1].material);
-// }
-
-// fishGroup.children[0].children[0].material;
-// gsap.to(fishGroup1.position, {
-//   x: pathLength,
-//   duration: 60,
-//   repeat: -1,
-// });
-// gsap.to(fishGroup1.position, {
-//   y: 5,
-//   duration: 2,
-//   repeat: -1,
-//   ease: 'sine.inOut',
-//   yoyo: true,
-// });
-
-// gltf.scene.traverse(function (el) {
-//   // console.log('traverse: ', el);
-//   if (el.isMesh) {
-//     // console.log('isMesh: ', el);
-//     el.material.transparent = true;
-//     el.material.opacity = 0;
-//   }
-// });
-
 gsap.registerEffect({
   name: 'float',
   extendTimeline: true,
   defaults: {
-    duration: 60,
+    duration: randomInt(30, 40),
   },
   effect: (targets, config) => {
-    console.log(targets);
-    console.log(targets[0].children[0].children[0].material);
-    console.log(targets[0].children[0].children[1].material);
-
-    // let targetMaterial;
-    // targets[0].traverse((el) => {
-    //   if (el.isMesh) {
-    //     console.log('pls', el);
-    //     targetMaterial = el.isMesh.material;
-    //   }
-    // });
-    // console.log(targetMaterial);
-    // console.log(targets[0]);
-
-    let tl = gsap.timeline();
-    // for (let i = 0; i < targets[0].children[0].children.length; i++) {
-    tl.fromTo(targets[0].children[0].children[0].material, { opacity: 0 }, { opacity: 1, duration: 2 })
-      .fromTo(targets[0].children[0].children[1].material, { opacity: 0 }, { opacity: 1, duration: 2 })
-      // .from(targets[0].children[0].children[0].material, { opacity: 0 })
-      // .to(targets[0].children[0].children[i].material, { opacity: 1, duration: 2 })
-
-      .to(targets[0].position, { x: 200, duration: 10 })
-
-      // .to(targets[0].position, { x: 200, duration: config.duration })
-      // .to(targets[0].position, { y: 5, duration: 2, repeat: -1, ease: 'sine.inOut', yoyo: true })
-      // .to(targetMaterial, { opacity: 0, duration: 2, delay: 10 });
-      .to(targets[0].children[0].children[0].material, { delay: 8, opacity: 0, duration: 2 })
-      .to(targets[0].children[0].children[1].material, { delay: 8, opacity: 0, duration: 2 });
-    // console.log('test', targetMaterial);
-    // }
-    return tl;
-  },
-});
-
-gsap.registerEffect({
-  name: 'float1',
-  extendTimeline: true,
-  defaults: {
-    duration: 60,
-  },
-  effect: (targets, config) => {
-    console.log(targets);
-    console.log(targets[0].children[0].children[0].material.opacity);
+    // console.log(targets);
+    // console.log(targets[0].children[0].children[0].material);
     // console.log(targets[0].children[0].children[1].material);
 
-    function fadefloat() {
-      let tlfadeIn = gsap.timeline({
-        onComplete: () => {
-          console.log('faded in');
-          tlmove.play();
-        },
-      });
+    // targets[0].traverse(function (el) {
+    //   // console.log('traverse: ', el);
+    //   if (el.isMesh) {
+    //     // console.log('isMesh: ', el);
+    //     el.material.transparent = true;
+    //     el.material.opacity = 0;
+    //   }
+    // });
 
-      tlfadeIn
-        .to(targets[0].children[0].children[0].material, { opacity: 1, duration: 2 })
-        .to(targets[0].children[0].children[1].material, { opacity: 1, duration: 2 });
-      console.log(targets[0].children[0].children[0].material.opacity);
-    }
-    let tlmove = gsap.timeline({
-      onComplete: () => {
-        console.log('moved');
-        tlfadeOut.play();
-      },
-    });
-
-    tlmove.to(targets[0].position, { x: 200, duration: 10 });
-    console.log(targets[0].children[0].children[0].material.opacity);
-
-    let tlfadeOut = gsap.timeline({
-      onComplete: () => {
-        console.log('faded out');
-      },
-    });
-    tlfadeOut
-      .to(targets[0].children[0].children[0].material, { opacity: 0, duration: 2 })
-      .to(targets[0].children[0].children[1].material, { opacity: 0, duration: 2 });
-    console.log(targets[0].children[0].children[0].material.opacity);
-
-    return fadefloat();
-  },
-});
-
-gsap.registerEffect({
-  name: 'float2',
-  effect: (targets, config) => {
-    // console.log('targets1', targets);
     let tl = gsap.timeline();
-    tl.from(targets[0], { opacity: 0, duration: 2 })
-      .from(targets[1], { opacity: 0, duration: 2 })
-      .to(targets[2].position, { x: 200, duration: 10 });
-    // console.log('targets2', targets);
+    tl.fromTo(
+      targets[0].children[0].children[1].material,
+      { opacity: 0, transparent: true },
+      { opacity: 1, transparent: false, duration: 1 }
+    )
+      .fromTo(
+        targets[0].children[0].children[0].material,
+        { opacity: 0, transparent: true },
+        { opacity: 1, transparent: false, duration: 1 },
+        '<'
+      )
+      .to(targets[0].position, { x: 800, duration: config.duration, ease: 'none' }, '-=1')
+      .to(targets[0].children[0].children[1].material, { opacity: 0, transparent: true, duration: 1 }, '-=2')
+      .to(targets[0].children[0].children[0].material, { opacity: 0, transparent: true, duration: 1 }, '<')
+      .to(
+        targets[0].position,
+        {
+          y: 5,
+          duration: 2,
+          repeat: -1,
+          ease: 'sine.inOut',
+          yoyo: true,
+        },
+        '-=100%'
+      );
     return tl;
   },
-  defaults: { duration: 1 },
-  extendTimeline: true,
-});
-
-gsap.registerEffect({
-  name: 'fadeIn',
-  effect: (targets, config) => {
-    return gsap.to(targets, { duration: config.duration, opacity: 1, transparent: false });
-  },
-  defaults: { duration: 1 },
-  extendTimeline: true,
-});
-
-gsap.registerEffect({
-  name: 'fadeOut',
-  effect: (targets, config) => {
-    return gsap.to(targets, { duration: config.duration, opacity: 0, transparent: true });
-  },
-  defaults: { duration: 1 },
-  extendTimeline: true,
 });
 
 /*                                               ASSET: FISH LANTERN + FLAME                                          */
@@ -428,127 +324,60 @@ loader.load(
 */
 /*                                               ASSET: MINI FISH LANTERN                                          */
 
-let pathLength = 750;
 const fishGroup = new THREE.Group();
 // const fishLight1 = new THREE.PointLight(0xffc8c8, 20, 50);
 // scene.add(fishLight1);
 // const fishLightHelper1 = new THREE.PointLightHelper(fishLight1, 5);
 // scene.add(fishLightHelper1);
 loader.load('/Fishv8.glb', function (gltf) {
-  gltf.scene.position.set(-(pathLength / 2), 20, 100);
+  gltf.scene.position.set(-400, 25, 100);
   gltf.scene.rotation.y = Math.PI / 2;
-  gltf.scene.scale.setScalar(randomInt(1, 3));
-  gltf.scene.traverse(function (el) {
-    // console.log('traverse: ', el);
-    if (el.isMesh) {
-      // console.log('isMesh: ', el);
-      el.material.transparent = true;
-      el.material.opacity = 0;
-    }
-  });
 
-  const fishLight = new THREE.PointLight(0xffc8c8, 20, 50);
+  const randomNum = randomInt(1, 2);
+  gltf.scene.scale.setScalar(randomNum);
+  const fishLight = new THREE.PointLight(0xffc8c8, 20, randomNum * 20);
+
   fishLight.position.set(gltf.scene.position.x + 5, gltf.scene.position.y + 15, gltf.scene.position.z);
-
-  gsap.to(fishGroup.position, {
-    x: pathLength,
-    duration: 45,
-    repeat: -1,
-  });
-  gsap.to(fishGroup.position, {
-    y: 5,
-    duration: 2,
-    repeat: -1,
-    ease: 'sine.inOut',
-    yoyo: true,
-  });
 
   fishGroup.add(gltf.scene);
   fishGroup.add(fishLight);
+
+  gsap.effects.float(fishGroup);
   scene.add(fishGroup);
 });
 
-pathLength = 1000;
 const fishGroup1 = new THREE.Group();
 loader.load('/Fishv8.glb', function (gltf) {
-  gltf.scene.position.set(-200, 200, -100);
-  // gltf.scene.position.set(-(pathLength / 2), 200, -100);
+  gltf.scene.position.set(-500, 200, -100);
   gltf.scene.rotation.y = Math.PI / 2;
-  gltf.scene.scale.setScalar(5);
-  // randomInt(2, 3)
-  // gltf.scene.traverse(function (el) {
-  //   // console.log('traverse: ', el);
-  //   if (el.isMesh) {
-  //     // console.log('isMesh: ', el);
-  //     el.material.transparent = true;
-  //     el.material.opacity = 0;
-  //   }
-  // });
 
-  // 0xffc8c8
-
-  const fishLight1 = new THREE.PointLight(0x0000ff, 20, 50);
+  const randomNum = randomInt(2, 3);
+  gltf.scene.scale.setScalar(randomNum);
+  const fishLight1 = new THREE.PointLight(0xffc8c8, 20, randomNum * 20);
   fishLight1.position.set(gltf.scene.position.x + 5, gltf.scene.position.y + 15, gltf.scene.position.z);
-
-  // gsap.to(fishGroup1.position, {
-  //   x: pathLength,
-  //   duration: 60,
-  //   repeat: -1,
-  // });
-  // gsap.to(fishGroup1.position, {
-  //   y: 5,
-  //   duration: 2,
-  //   repeat: -1,
-  //   ease: 'sine.inOut',
-  //   yoyo: true,
-  // });
 
   fishGroup1.add(gltf.scene);
   fishGroup1.add(fishLight1);
 
-  // console.log(fishGroup1);
-
-  // gsap.effects.float(fishGroup1);
-  // gsap.effects.float(fishGroup1, { duration: 10 });
-
-  // gsap.effects.float2([gltf.scene.children[0].material, gltf.scene.children[1].material, fishGroup1]);
+  gsap.effects.float(fishGroup1);
 
   scene.add(fishGroup1);
 });
 
-pathLength = 1200;
 const fishGroup2 = new THREE.Group();
 loader.load('/Fishv8.glb', function (gltf) {
-  gltf.scene.position.set(-(pathLength / 2), 75, 200);
+  gltf.scene.position.set(-300, 75, 200);
   gltf.scene.rotation.y = Math.PI / 2;
-  gltf.scene.scale.setScalar(randomInt(1, 2));
-  gltf.scene.traverse(function (el) {
-    // console.log('traverse: ', el);
-    if (el.isMesh) {
-      // console.log('isMesh: ', el);
-      el.material.transparent = true;
-      el.material.opacity = 0;
-    }
-  });
 
-  const fishLight2 = new THREE.PointLight(0xffc8c8, 10, 50);
+  const randomNum = randomInt(1, 2);
+  gltf.scene.scale.setScalar(randomNum);
+  const fishLight2 = new THREE.PointLight(0xffc8c8, 20, randomNum * 20);
+
   fishLight2.position.set(gltf.scene.position.x + 5, gltf.scene.position.y + 15, gltf.scene.position.z);
-
-  gsap.to(fishGroup2.position, {
-    x: pathLength,
-    duration: 80,
-    repeat: -1,
-  });
-  gsap.to(fishGroup2.position, {
-    y: 5,
-    duration: 2,
-    repeat: -1,
-    ease: 'sine.inOut',
-    yoyo: true,
-  });
 
   fishGroup2.add(gltf.scene);
   fishGroup2.add(fishLight2);
+  gsap.effects.float(fishGroup2);
   scene.add(fishGroup2);
 });
 
@@ -1108,34 +937,6 @@ const animate = () => {
   controls.update();
   // controls.update(clock.getDelta());
 
-  // if (fishGroup.position.x >= 100) {
-  //   gsap.effects.fadeIn(fishGroup.children[0].children[0].material);
-  //   gsap.effects.fadeIn(fishGroup.children[0].children[1].material);
-  // }
-  // if (fishGroup.position.x >= 700) {
-  //   gsap.effects.fadeOut(fishGroup.children[0].children[0].material);
-  //   gsap.effects.fadeOut(fishGroup.children[0].children[1].material);
-  // }
-  // //
-  // if (fishGroup1.position.x >= 100) {
-  //   gsap.effects.fadeIn(fishGroup1.children[0].children[0].material);
-  //   gsap.effects.fadeIn(fishGroup1.children[0].children[1].material);
-  // }
-  // if (fishGroup1.position.x >= 700) {
-  //   gsap.effects.fadeOut(fishGroup1.children[0].children[0].material);
-  //   gsap.effects.fadeOut(fishGroup1.children[0].children[1].material);
-  // }
-  //
-  if (fishGroup2.position.x >= 100) {
-    gsap.effects.fadeIn(fishGroup2.children[0].children[0].material);
-    gsap.effects.fadeIn(fishGroup2.children[0].children[1].material);
-  }
-  if (fishGroup2.position.x >= 700) {
-    gsap.effects.fadeOut(fishGroup2.children[0].children[0].material);
-    gsap.effects.fadeOut(fishGroup2.children[0].children[1].material);
-  }
-
-  // console.log(fishGroup.position.x, fishGroup.children[0].children[0].material.opacity);
   renderer.render(scene, camera);
 };
 
