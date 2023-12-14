@@ -38,7 +38,7 @@ const dirLight = new THREE.DirectionalLight(0xcddafd, 0.5);
 dirLight.position.set(0, 50, -100);
 scene.add(dirLight);
 
-for (let i = 0; i < 10; i++) {
+for (let i = 0; i < 5; i++) {
   let randomColL = randomColor({
     luminosity: 'light',
     hue: 'random',
@@ -78,7 +78,7 @@ scene.add(camera);
 // axis helper -> X: red, Y: green, Z: blue
 const axesHelper = new THREE.AxesHelper(50);
 axesHelper.position.y = 0.01; // above the ground slightly
-scene.add(axesHelper);
+// scene.add(axesHelper);
 
 // control
 const controls = new OrbitControls(camera, renderer.domElement); // orbit control
@@ -101,9 +101,8 @@ controls.maxDistance = 1000;
 
 /*
 ////////////////////////////////////////////////////////////////////////////////
-objects, you don't need to modify for week2 
 */
-//0xc1d3fe
+
 // ground
 const groundGeometry = new THREE.PlaneGeometry(10000, 10000);
 const groundMaterial = new THREE.MeshStandardMaterial({
@@ -135,123 +134,9 @@ function randomDirection() {
 }
 
 function randomIntCondition(min, max) {
-  // const x = randomInt(min, max) * randomDirection();
-  // const y = randomInt(min, max) * randomDirection();
-  // const z = randomInt(min, max) * randomDirection();
-  // return { x, y, z };
-
   return randomInt(min, max) * randomDirection();
 }
 
-//floatGroup - v1, float but fish and light in a group (pre-looping loader)
-gsap.registerEffect({
-  name: 'floatGroup',
-  extendTimeline: true,
-  defaults: {
-    duration: randomInt(30, 40),
-  },
-  effect: (targets, config) => {
-    // console.log(targets);
-    // console.log(targets[0].children[0].children[0].material);
-    // console.log(targets[0].children[0].children[1].material);
-
-    // targets[0].traverse(function (el) {
-    //   // console.log('traverse: ', el);
-    //   if (el.isMesh) {
-    //     // console.log('isMesh: ', el);
-    //     el.material.transparent = true;
-    //     el.material.opacity = 0;
-    //   }
-    // });
-
-    let tl = gsap.timeline();
-    tl.fromTo(
-      targets[0].children[0].children[1].material,
-      { opacity: 0, transparent: true },
-      { opacity: 1, transparent: false, duration: 1 }
-    )
-      .fromTo(
-        targets[0].children[0].children[0].material,
-        { opacity: 0, transparent: true },
-        { opacity: 1, transparent: false, duration: 1 },
-        '<'
-      )
-      .to(targets[0].position, { x: 800, duration: config.duration, ease: 'none' }, '-=1')
-      .to(targets[0].children[0].children[1].material, { opacity: 0, transparent: true, duration: 1 }, '-=2')
-      .to(targets[0].children[0].children[0].material, { opacity: 0, transparent: true, duration: 1 }, '<')
-      .to(
-        targets[0].position,
-        {
-          y: 5,
-          duration: 2,
-          repeat: -1,
-          ease: 'sine.inOut',
-          yoyo: true,
-        },
-        '-=100%'
-      );
-    return tl;
-  },
-});
-
-//float - v2, float fish and light (looping loader; pre ray casting)
-gsap.registerEffect({
-  name: 'float',
-  extendTimeline: true,
-  defaults: {
-    duration: randomInt(45, 60),
-  },
-  effect: (targets, config) => {
-    // console.log(targets);
-    // console.log(targets[0].children[0].material);
-
-    let tl = gsap.timeline({ repeat: -1 });
-
-    tl.fromTo(
-      targets[0].children[1].material,
-      { opacity: 0, transparent: true },
-      { opacity: 1, transparent: false, duration: 1 }
-    )
-      .fromTo(
-        targets[0].children[0].material,
-        { opacity: 0, transparent: true },
-        { opacity: 1, transparent: false, duration: 1 },
-        '<'
-      )
-      .to(targets[0].position, { x: 800, duration: config.duration, ease: 'none' }, '-=1')
-      .to(targets[1].position, { x: 800, duration: config.duration, ease: 'none' }, '<')
-      .to(targets[0].children[1].material, { opacity: 0, transparent: true, duration: 1 }, '-=2')
-      .to(targets[0].children[0].material, { opacity: 0, transparent: true, duration: 1 }, '<');
-    // .fromTo(
-    //   targets[0].position,
-    //   { y: targets[0].position.y },
-    //   {
-    //     y: targets[0].position.y + 5,
-    //     duration: 2,
-    //     repeat: 30,
-    //     ease: 'sine.inOut',
-    //     yoyo: true,
-    //   },
-    //   '-=100%'
-    // )
-    // .fromTo(
-    //   targets[1].position,
-    //   { y: targets[1].position.y },
-    //   {
-    //     y: targets[1].position.y + 5,
-    //     duration: 2,
-    //     repeat: -1,
-    //     ease: 'sine.inOut',
-    //     yoyo: true,
-    //   },
-    //   60
-    // );
-    // tl.repeat(-1);
-    return tl;
-  },
-});
-
-//floatChild - v3, float but with light as child to fish (ray casting fish)
 gsap.registerEffect({
   name: 'floatChild',
   extendTimeline: true,
@@ -259,9 +144,6 @@ gsap.registerEffect({
     duration: randomInt(45, 60),
   },
   effect: (targets, config) => {
-    // console.log(targets);
-    // console.log(targets[0].children[0].material);
-
     let tl = gsap.timeline({ repeat: -1 });
 
     tl.fromTo(
@@ -276,34 +158,8 @@ gsap.registerEffect({
         '<'
       )
       .to(targets[0].position, { x: 800, duration: config.duration, ease: 'none' }, '-=1')
-      // .to(targets[0].children[2].position, { x: 800, duration: config.duration, ease: 'none' }, '<')
       .to(targets[0].children[1].material, { opacity: 0, transparent: true, duration: 1 }, '-=2')
       .to(targets[0].children[0].material, { opacity: 0, transparent: true, duration: 1 }, '<');
-    // .fromTo(
-    //   targets[0].position,
-    //   { y: targets[0].position.y },
-    //   {
-    //     y: targets[0].position.y + 5,
-    //     duration: 2,
-    //     repeat: 30,
-    //     ease: 'sine.inOut',
-    //     yoyo: true,
-    //   },
-    //   '-=100%'
-    // )
-    // .fromTo(
-    //   targets[1].position,
-    //   { y: targets[1].position.y },
-    //   {
-    //     y: targets[1].position.y + 5,
-    //     duration: 2,
-    //     repeat: -1,
-    //     ease: 'sine.inOut',
-    //     yoyo: true,
-    //   },
-    //   60
-    // );
-    // tl.repeat(-1);
     return tl;
   },
 });
@@ -384,50 +240,9 @@ loader.load(
   }
 );
 
-//Flame test
-// let mixer;
-// loader.load(
-//   '/flame.glb',
-//   //https://sketchfab.com/3d-models/fire-animation-fc890bebb4ba44dcb900d50658af123f
-
-//   function (gltf) {
-//     console.log(`Flame gltf: `, gltf);
-
-//     gltf.scene.traverse(function (el) {
-//       // console.log('traverse: ', el);
-//       if (el.isMesh) {
-//         // console.log('isMesh: ', el);
-//         el.material.color.r = 0.5;
-//         el.material.color.g = 0.5;
-//         el.material.color.b = 0.5;
-//       }
-//     });
-
-//     mixer = new THREE.AnimationMixer(gltf.scene);
-//     mixer.clipAction(gltf.animations[0]).play();
-
-//     gltf.scene.position.x = fishLanternGroupX + 10;
-//     gltf.scene.position.y = fishLanternGroupY + 50;
-//     gltf.scene.position.z = fishLanternGroupZ + 5;
-//     // gltf.scene.rotation.y = Math.PI / 2;
-//     gltf.scene.scale.setScalar(9);
-
-//     fishLanternGroup.add(gltf.scene);
-//   },
-
-//   function (xhr) {
-//     console.log('Flame: ' + (xhr.loaded / xhr.total) * 100 + '% loaded');
-//   },
-//   undefined,
-//   function (error) {
-//     console.error(error);
-//   }
-// );
-
-/*
-
-
-*/
+//
+//
+//
 /*                                               ASSET: MINI FISH LANTERN                                          */
 
 for (let i = 0; i < 20; i++) {
@@ -468,7 +283,6 @@ for (let i = 0; i < 20; i++) {
 /*                                                  ASSET: KOI FISH                                              */
 
 let mixerKoi;
-let sin;
 const koiGroup = new THREE.Group();
 loader.load(
   '/koiFish/scene.gltf',
@@ -509,22 +323,6 @@ loader.load(
       repeat: -1,
       ease: 'power2.inOut',
     });
-
-    // gsap.to(koiGroup.position, {
-    //   y: sin * 10,
-    //   duration: 60,
-    //   repeat: -1,
-    //   ease: 'power2.inOut',
-    // });
-    // gsap.to(gltf.scene.position, {
-    //   y: 45,
-    //   duration: 3,
-    //   repeat: -1,
-    //   ease: 'none',
-    //   yoyo: true,
-    // });
-
-    // scene.add(gltf.scene);
     scene.add(koiGroup);
   },
 
@@ -557,9 +355,9 @@ loader.load(
         el.material._transmission = 1;
         el.material.transparent = true;
         // el.material.opacity = 0.9;
-        el.material.color.r = 1;
-        el.material.color.g = 0.45;
-        el.material.color.b = 0.56;
+        el.material.color.r = 0.925;
+        el.material.color.g = 0.627;
+        el.material.color.b = 1;
       }
     });
 
@@ -567,7 +365,7 @@ loader.load(
     gltf.scene.scale.setScalar(0.15);
     gltf.scene.rotation.set(0, Math.PI / 4, -Math.PI / 8);
 
-    const lanternLight = new THREE.PointLight(0xc1121f, 20, 150);
+    const lanternLight = new THREE.PointLight(0xeca0ff, 20, 125);
     lanternLight.position.copy(gltf.scene.position);
     const lanternLightHelper = new THREE.PointLightHelper(lanternLight, 10);
 
@@ -612,10 +410,12 @@ loader.load('/paperLantern.glb', function (gltf) {
       // console.log('isMesh: ', el);
       el.material._transmission = 1;
       el.material.transparent = true;
-      // el.material.opacity = 0.9;
-      el.material.color.r = 1;
-      el.material.color.g = 0.45;
-      el.material.color.b = 0.56;
+      // el.material.color.r = 1;
+      // el.material.color.g = 0.45;
+      // el.material.color.b = 0.56;
+      el.material.color.r = 0.925;
+      el.material.color.g = 0.627;
+      el.material.color.b = 1;
     }
   });
 
@@ -623,7 +423,8 @@ loader.load('/paperLantern.glb', function (gltf) {
   gltf.scene.rotation.set(0, Math.PI / 4, -Math.PI / 8);
   gltf.scene.scale.setScalar(0.15);
 
-  const lanternLight1 = new THREE.PointLight(0xc1121f, 20, 150);
+  const lanternLight1 = new THREE.PointLight(0xeca0ff, 20, 125);
+  // const lanternLight1 = new THREE.PointLight(0xc1121f, 20, 150);
   lanternLight1.position.copy(gltf.scene.position);
   const lanternLightHelper1 = new THREE.PointLightHelper(lanternLight1, 10);
 
@@ -650,274 +451,6 @@ loader.load('/paperLantern.glb', function (gltf) {
   scene.add(roundLanternGroup1);
 });
 
-//round lantern loop
-let lanterns = [];
-const lanternManager = new THREE.LoadingManager();
-const lanternLoader = new GLTFLoader(lanternManager);
-lanternManager.onLoad = () => {
-  // lanternPos();
-};
-// for (let i = 0; i < 7; i++) {
-//   lanternLoader.load('/paperLantern.glb', (gltf) => {
-//     gltf.scene.scale.setScalar(0.05);
-//     gltf.scene.position.x = randomIntCondition(150, 300);
-//     gltf.scene.position.y = randomInt(30, 400);
-//     gltf.scene.position.z = randomIntCondition(150, 300);
-//     gltf.scene.rotation.z = randomInt(-1.5, 1.5);
-//     scene.add(gltf.scene);
-//     lanterns.push(gltf);
-//   });
-// }
-function lanternPos() {
-  console.log(lanterns);
-  // for (let i = 0; i < lanterns.length; i++) {
-  // console.log(lanterns[i].scene.position.x, lanterns[i].scene.position.y, lanterns[i].scene.position.z);
-  // }
-}
-
-//
-//
-//
-/*                                      ASSET: CLOUDS                                      */
-
-// //cloud test
-// const cloudLight = new THREE.PointLight(0xffffff, 20, 100);
-// cloudLight.position.set(0, 10, -10);
-// // scene.add(cloudLight);
-// const cloudLightHelper = new THREE.PointLightHelper(cloudLight, 10);
-// // scene.add(cloudLightHelper);
-// loader.load(
-//   '/cloud.glb',
-//   //https://sketchfab.com/3d-models/cloud-test-6d1fff581b3a424d88ee2125f909f3f3
-
-//   function (gltf) {
-//     console.log(`Cloud gltf: `, gltf);
-
-//     // gltf.scene.traverse(function (el) {
-//     //   // console.log('traverse: ', el);
-//     //   if (el.isMesh) {
-//     //     // console.log('isMesh: ', el);
-//     //     // el.material.color.r = 0.5;
-//     //     // el.material.color.g = 0.5;
-//     //     // el.material.color.b = 0.5;
-//     //   }
-//     // });
-
-//     gltf.scene.position.x = 0;
-//     gltf.scene.position.y = 0;
-//     gltf.scene.position.z = 0;
-//     gltf.scene.scale.setScalar(30);
-
-//     scene.add(gltf.scene);
-//   },
-
-//   function (xhr) {
-//     // console.log('Cloud: ' + (xhr.loaded / xhr.total) * 100 + '% loaded');
-//   },
-//   undefined,
-//   function (error) {
-//     console.error(error);
-//   }
-// );
-
-//cloud loop
-let clouds = [];
-const cloudManager = new THREE.LoadingManager();
-const cloudLoader = new GLTFLoader(cloudManager);
-cloudManager.onLoad = () => {
-  // cloudPos();
-};
-for (let i = 0; i < 8; i++) {
-  cloudLoader.load('/cloud.glb', (gltf) => {
-    gltf.scene.scale.setScalar(30);
-    gltf.scene.position.set(randomIntCondition(200, 400), randomInt(-10, 30), randomIntCondition(200, 300));
-    // scene.add(gltf.scene);
-    // clouds.push(gltf);
-    // console.log(clouds);
-  });
-}
-function cloudPos() {
-  // console.log(clouds);
-
-  clouds[1].scene.position.set(200, 50, -150);
-  clouds[4].scene.position.set(75, 0, -225);
-  clouds[0].scene.position.set(175, 100, -275);
-  //
-  clouds[2].scene.position.set(-75, 0, 200);
-  clouds[3].scene.position.set(-150, 25, 175);
-  //
-  clouds[5].scene.position.set(randomIntCondition(150, 500), randomInt(-100, 500), randomIntCondition(150, 500));
-  clouds[6].scene.position.set(randomIntCondition(150, 500), randomInt(-100, 500), randomIntCondition(150, 500));
-  clouds[7].scene.position.set(randomIntCondition(150, 500), randomInt(-100, 500), randomIntCondition(150, 500));
-}
-
-// const cloudLight1 = new THREE.PointLight(0xffffff, 20, 100);
-// cloudLight1.position.set(150, 100, -225);
-// scene.add(cloudLight1);
-// const cloudLightHelper1 = new THREE.PointLightHelper(cloudLight1, 10);
-// scene.add(cloudLightHelper1);
-// const cloudLight2 = new THREE.PointLight(0xffffff, 20, 100);
-// cloudLight2.position.set(200, 100, -150);
-// scene.add(cloudLight2);
-// const cloudLightHelper2 = new THREE.PointLightHelper(cloudLight2, 10);
-// scene.add(cloudLightHelper2);
-//
-// const cloudLight3 = new THREE.PointLight(0xffffff, 20, 150);
-// cloudLight3.position.set(-175, 150, 175);
-// scene.add(cloudLight3);
-// const cloudLightHelper3 = new THREE.PointLightHelper(cloudLight3, 10);
-// scene.add(cloudLightHelper3);
-// const cloudLight4 = new THREE.PointLight(0xffffff, 50, 75);
-// cloudLight4.position.set(-40, 75, 250);
-// scene.add(cloudLight4);
-// const cloudLightHelper4 = new THREE.PointLightHelper(cloudLight4, 10);
-// scene.add(cloudLightHelper4);
-
-//
-//
-//
-/*                                      GEOMETRIES                                      */
-//rose
-for (let i = 0; i < 5; i++) {
-  const roseGeometry = new THREE.TorusKnotGeometry(5, 3, 85, 6, 20, 1);
-  const roseMaterial = new THREE.MeshStandardMaterial({ color: 0xc1121f });
-  const rose = new THREE.Mesh(roseGeometry, roseMaterial);
-  rose.position.set(randomIntCondition(100, 400), randomInt(30, 500), randomIntCondition(100, 400));
-  rose.rotation.set(randomInt(0, 6.28), randomInt(0, 6.28), randomInt(0, 6.28));
-  const roseMaterialWire = new THREE.MeshStandardMaterial({
-    color: 0x780000,
-    wireframe: true,
-    wireframeLinewidth: 2,
-  });
-  const roseWire = new THREE.Mesh(roseGeometry.clone(), roseMaterialWire);
-  roseWire.position.copy(rose.position);
-  roseWire.rotation.copy(rose.rotation);
-  rose.scale.setScalar(2);
-  // scene.add(rose);
-  // scene.add(roseWire);
-  // let roseGroup = new THREE.Group();
-  // roseGroup.add(rose);
-  // // roseGroup.add(roseWire);
-  // gsap.to(roseGroup.rotation, {
-  //   x: Math.PI * 2,
-  //   y: Math.PI * 2,
-  //   duration: randomInt(30, 60),
-  //   repeat: -1,
-  //   ease: 'none',
-  // });
-  // gsap.to(rose.rotation, {
-  //   x: Math.PI * 2,
-  //   y: Math.PI * 2,
-  //   z: Math.PI * 2,
-  //   duration: randomInt(1, 10),
-  //   repeatDelay: 5,
-  //   repeat: -1,
-  //   ease: 'none',
-  // });
-  // // gsap.to(roseWire.rotation, {
-  // //   x: Math.PI * 2,
-  // //   y: Math.PI * 2,
-  // //   z: Math.PI * 2,
-  // //   duration: randomInt(1, 10),
-  // //   repeatDelay: 5,
-  // //   repeat: -1,
-  // //   ease: 'none',
-  // // });
-  // scene.add(roseGroup);
-}
-
-//daisy
-for (let i = 0; i < 5; i++) {
-  const daisyGeometry = new THREE.TorusKnotGeometry(5, 3, 85, 6, 1, 5);
-  const daisyMaterial = new THREE.MeshStandardMaterial({ color: 0xf5cac3 });
-  const daisy = new THREE.Mesh(daisyGeometry, daisyMaterial);
-  daisy.position.set(randomIntCondition(200, 400), randomInt(30, 500), randomIntCondition(200, 400));
-  daisy.rotation.set(randomInt(0, 6.28), randomInt(0, 6.28), randomInt(0, 6.28));
-  daisy.scale.setScalar(2);
-  // scene.add(daisy);
-  let daisyGroup = new THREE.Group();
-  daisyGroup.add(daisy);
-  gsap.to(daisyGroup.rotation, {
-    // x: Math.PI * 2,
-    y: Math.PI * 2,
-    // z: Math.PI * 2,
-    duration: randomInt(60, 80),
-    repeat: -1,
-    ease: 'none',
-  });
-  gsap.to(daisy.rotation, {
-    x: Math.PI * 2,
-    y: Math.PI * 2,
-    z: Math.PI * 2,
-    duration: randomInt(1, 10),
-    repeatDelay: 5,
-    repeat: -1,
-    ease: 'none',
-  });
-  // scene.add(daisyGroup);
-}
-
-//stars
-for (let i = 0; i < 5; i++) {
-  const starGeometry = new THREE.OctahedronGeometry(5, 0);
-  const starMaterial = new THREE.MeshStandardMaterial({ color: 0xf9c74f });
-  const star = new THREE.Mesh(starGeometry, starMaterial);
-  star.position.set(randomIntCondition(100, 400), randomInt(30, 500), randomIntCondition(100, 400));
-  star.rotation.set(randomInt(0, 6.28), randomInt(0, 6.28), randomInt(0, 6.28));
-  star.scale.setScalar(2);
-  // scene.add(star);
-  // let starGroup = new THREE.Group();
-  // starGroup.add(star);
-  // gsap.to(starGroup.rotation, {
-  //   x: Math.PI * 2,
-  //   y: Math.PI * 2,
-  //   // z: Math.PI * 2,
-  //   duration: randomInt(30, 60),
-  //   repeat: -1,
-  //   ease: 'none',
-  // });
-  // gsap.to(star.rotation, {
-  //   x: Math.PI * 2,
-  //   y: Math.PI * 2,
-  //   z: Math.PI * 2,
-  //   duration: randomInt(1, 10),
-  //   repeatDelay: 5,
-  //   repeat: -1,
-  //   ease: 'none',
-  // });
-  // scene.add(starGroup);
-
-  const star1Geometry = new THREE.IcosahedronGeometry(5, 0);
-  const star1Material = new THREE.MeshStandardMaterial({ color: 0xe9f5db, roughness: 0.8, metalness: 0.2 });
-  const star1 = new THREE.Mesh(star1Geometry, star1Material);
-  star1.position.set(randomIntCondition(100, 400), randomInt(30, 500), randomIntCondition(100, 400));
-  star1.rotation.set(randomInt(0, 6.28), randomInt(0, 6.28), randomInt(0, 6.28));
-  star1.scale.setScalar(2);
-  star1.name = 'star1';
-  star1.isAnimating = false;
-  // scene.add(star1);
-  const star1Group = new THREE.Group();
-  star1Group.add(star1);
-  gsap.to(star1Group.rotation, {
-    // x: Math.PI * 2,
-    y: Math.PI * 2,
-    // z: Math.PI * 2,
-    duration: randomInt(120, 150),
-    repeat: -1,
-    ease: 'none',
-  });
-  gsap.to(star1.rotation, {
-    // x: Math.PI * 2,
-    y: Math.PI * 2,
-    // z: Math.PI * 2,
-    duration: randomInt(1, 10),
-    repeatDelay: 5,
-    repeat: -1,
-    ease: 'none',
-  });
-  // scene.add(star1Group);
-}
-
 //
 //
 //
@@ -941,63 +474,10 @@ const onPointerMove = (event) => {
 };
 window.addEventListener('pointermove', onPointerMove);
 
-let daisy = (position) => {
-  console.log(position);
-  const daisyGeometry = new THREE.TorusKnotGeometry(5, 3, 85, 6, 1, 5);
-  const daisyMaterial = new THREE.MeshStandardMaterial({ color: 0xf5cac3 });
-  const daisy = new THREE.Mesh(daisyGeometry, daisyMaterial);
-  // daisy.position.set(position.x, position.y + 10, position.z + randomInt(10, 15));
-  daisy.position.set(randomIntCondition(200, 400), randomInt(30, 500), randomIntCondition(200, 400));
-  daisy.rotation.set(randomInt(0, 6.28), randomInt(0, 6.28), randomInt(0, 6.28));
-  daisy.scale.setScalar(0.5);
-  gsap.to(daisy.rotation, {
-    x: Math.PI * 2,
-    y: Math.PI * 2,
-    z: Math.PI * 2,
-    duration: 3,
-    repeat: -1,
-    ease: 'none',
-  });
-  scene.add(daisy);
-};
-
-let lantern = () => {
-  loader.load('/paperLantern.glb', (gltf) => {
-    gltf.scene.scale.setScalar(0.05);
-    gltf.scene.position.set(randomIntCondition(150, 300), randomInt(30, 400), randomIntCondition(150, 300));
-    gltf.scene.rotation.z = randomInt(-1.5, 1.5);
-    gsap.to(gltf.scene.rotation, {
-      x: Math.PI * 2,
-      y: Math.PI * 2,
-      z: Math.PI * 2,
-      duration: 3,
-      repeat: -1,
-      ease: 'none',
-    });
-    const lanternLight = new THREE.PointLight(0xc1121f, 20, 150);
-    lanternLight.position.copy(gltf.scene.position);
-    scene.add(lanternLight);
-    scene.add(gltf.scene);
-  });
-};
-
 const onClick = () => {
   if (!INTERSECTED) return;
 
-  // if (INTERSECTED.isAnimating) {
-  //   const { r, g, b } = new THREE.Color(0xffc8c8);
-  //   gsap.to(INTERSECTED.parent.children[2].color, {
-  //     r,
-  //     g,
-  //     b,
-  //     duration: 1,
-  //     ease: 'power2.inOut',
-  //   });
-
-  //   INTERSECTED.isAnimating = false;
-  // } else {
   const c = randomColor({
-    // hue: 'red',
     luminosity: 'bright',
   });
   const { r, g, b } = new THREE.Color(c);
@@ -1008,16 +488,11 @@ const onClick = () => {
     duration: 1,
     ease: 'power2.inOut',
   });
-  // console.log(INTERSECTED);
-  // daisy(INTERSECTED.parent.position); //clutters a bit
-  // lantern(); // this pauses scene each time to load lantern
-  // INTERSECTED.isAnimating = true;
-  // }
 };
 window.addEventListener('click', onClick);
 
-const clock = new THREE.Clock();
 // animate
+const clock = new THREE.Clock();
 const animate = () => {
   requestAnimationFrame(animate);
 
@@ -1025,23 +500,15 @@ const animate = () => {
   const intersects = raycaster.intersectObjects(scene.children);
   if (intersects.length > 0) {
     if (intersects[0].object.name === 'fish' && INTERSECTED != intersects[0].object) {
-      // if (INTERSECTED) INTERSECTED.material.emissive.setHex(INTERSECTED.currentHex);
-
       INTERSECTED = intersects[0].object;
-      // INTERSECTED.currentHex = INTERSECTED.material.emissive.getHex();
-      // INTERSECTED.material.emissive.setHex(0x00ffff);
     }
   } else {
-    // if (INTERSECTED) INTERSECTED.material.emissive.setHex(INTERSECTED.currentHex);
     INTERSECTED = null;
   }
-  // console.log(intersects);
+
   const delta = clock.getDelta();
   if (flameMixer) flameMixer.update(delta);
   if (mixerKoi) mixerKoi.update(delta);
-
-  sin = Math.sin(clock.getElapsedTime());
-  // console.log(sin);
 
   controls.update();
 
