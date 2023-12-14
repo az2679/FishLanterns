@@ -151,7 +151,7 @@ function randomIntCondition(min, max) {
 }
 
 gsap.registerEffect({
-  name: 'float',
+  name: 'floatGroup',
   extendTimeline: true,
   defaults: {
     duration: randomInt(30, 40),
@@ -200,21 +200,67 @@ gsap.registerEffect({
   },
 });
 
+gsap.registerEffect({
+  name: 'float',
+  extendTimeline: true,
+  defaults: {
+    duration: randomInt(45, 60),
+  },
+  effect: (targets, config) => {
+    // console.log(targets);
+    // console.log(targets[0].children[0].material);
+
+    let tl = gsap.timeline({ repeat: -1 });
+
+    tl.fromTo(
+      targets[0].children[1].material,
+      { opacity: 0, transparent: true },
+      { opacity: 1, transparent: false, duration: 1 }
+    )
+      .fromTo(
+        targets[0].children[0].material,
+        { opacity: 0, transparent: true },
+        { opacity: 1, transparent: false, duration: 1 },
+        '<'
+      )
+      .to(targets[0].position, { x: 800, duration: config.duration, ease: 'none' }, '-=1')
+      .to(targets[1].position, { x: 800, duration: config.duration, ease: 'none' }, '<')
+      .to(targets[0].children[1].material, { opacity: 0, transparent: true, duration: 1 }, '-=2')
+      .to(targets[0].children[0].material, { opacity: 0, transparent: true, duration: 1 }, '<');
+    // .fromTo(
+    //   targets[0].position,
+    //   { y: targets[0].position.y },
+    //   {
+    //     y: targets[0].position.y + 5,
+    //     duration: 2,
+    //     repeat: 30,
+    //     ease: 'sine.inOut',
+    //     yoyo: true,
+    //   },
+    //   '-=100%'
+    // )
+    // .fromTo(
+    //   targets[1].position,
+    //   { y: targets[1].position.y },
+    //   {
+    //     y: targets[1].position.y + 5,
+    //     duration: 2,
+    //     repeat: -1,
+    //     ease: 'sine.inOut',
+    //     yoyo: true,
+    //   },
+    //   60
+    // );
+    // tl.repeat(-1);
+    return tl;
+  },
+});
+
 /*                                               ASSET: FISH LANTERN + FLAME                                          */
 
-const fishLanternGroup = new THREE.Group();
-const fishLanternLight1 = new THREE.PointLight(0xffc8c8, 20, 150);
-// scene.add(fishLanternLight1);
-const fishLanternLightHelper1 = new THREE.PointLightHelper(fishLanternLight1, 10);
-// scene.add(fishLanternLightHelper1);
-
-const fishLanternLight2 = new THREE.PointLight(0x003566, 50, 175);
-// scene.add(fishLanternLight2);
-const fishLanternLightHelper2 = new THREE.PointLightHelper(fishLanternLight2, 10);
-// scene.add(fishLanternLightHelper2);
-
 //Fish Lantern with Flame
-let mixer;
+const fishLanternGroup = new THREE.Group();
+let flameMixer;
 loader.load(
   '/Fishv8.glb',
   //Fishv8 internal wires; Fishv6 external wires
@@ -226,6 +272,14 @@ loader.load(
     gltf.scene.position.set(0, 90, 0);
     gltf.scene.rotation.y = Math.PI / 2;
     gltf.scene.scale.setScalar(5);
+
+    const fishLanternLight1 = new THREE.PointLight(0xffc8c8, 20, 150);
+    // const fishLanternLightHelper1 = new THREE.PointLightHelper(fishLanternLight1, 10);
+    // fishLanternGroup.add(fishLanternLightHelper1);
+
+    const fishLanternLight2 = new THREE.PointLight(0x003566, 50, 175);
+    // const fishLanternLightHelper2 = new THREE.PointLightHelper(fishLanternLight2, 10);
+    // fishLanternGroup.add(fishLanternLightHelper2);
 
     fishLanternLight1.position.set(gltf.scene.position.x - 10, gltf.scene.position.y + 40, gltf.scene.position.z + 5);
     fishLanternLight2.position.set(gltf.scene.position.x + 35, gltf.scene.position.y + 40, gltf.scene.position.z + 5);
@@ -249,8 +303,8 @@ loader.load(
             el.material.color.b = 0.5;
           }
         });
-        mixer = new THREE.AnimationMixer(gltfFlame.scene);
-        mixer.clipAction(gltfFlame.animations[0]).play();
+        flameMixer = new THREE.AnimationMixer(gltfFlame.scene);
+        flameMixer.clipAction(gltfFlame.animations[0]).play();
         gltfFlame.scene.position.set(gltf.scene.position.x + 10, gltf.scene.position.y + 50, gltf.scene.position.z + 5);
         gltfFlame.scene.scale.setScalar(9);
         fishLanternGroup.add(gltfFlame.scene);
@@ -324,62 +378,28 @@ loader.load(
 */
 /*                                               ASSET: MINI FISH LANTERN                                          */
 
-const fishGroup = new THREE.Group();
-// const fishLight1 = new THREE.PointLight(0xffc8c8, 20, 50);
-// scene.add(fishLight1);
-// const fishLightHelper1 = new THREE.PointLightHelper(fishLight1, 5);
-// scene.add(fishLightHelper1);
-loader.load('/Fishv8.glb', function (gltf) {
-  gltf.scene.position.set(-400, 25, 100);
-  gltf.scene.rotation.y = Math.PI / 2;
+for (let i = 0; i < 7; i++) {
+  loader.load('/Fishv8.glb', function (gltf) {
+    gltf.scene.position.set(-randomInt(3, 4) * 150, randomInt(25, 300), randomIntCondition(150, 300));
+    gltf.scene.rotation.y = Math.PI / 2;
 
-  const randomNum = randomInt(1, 2);
-  gltf.scene.scale.setScalar(randomNum);
-  const fishLight = new THREE.PointLight(0xffc8c8, 20, randomNum * 20);
+    const randomNum = randomInt(2, 4) / 2;
+    gltf.scene.scale.setScalar(randomNum);
+    const fishLight = new THREE.PointLight(0xffc8c8, 20, randomNum * 20);
+    fishLight.position.set(gltf.scene.position.x + 5, gltf.scene.position.y + 12.5, gltf.scene.position.z + 2.5);
 
-  fishLight.position.set(gltf.scene.position.x + 5, gltf.scene.position.y + 15, gltf.scene.position.z);
+    const fishLightHelper = new THREE.PointLightHelper(fishLight, 5);
+    scene.add(fishLightHelper);
 
-  fishGroup.add(gltf.scene);
-  fishGroup.add(fishLight);
+    gsap.effects
+      .float([gltf.scene, fishLight])
+      .delay(10 * i)
+      .repeat(-1);
 
-  gsap.effects.float(fishGroup);
-  scene.add(fishGroup);
-});
-
-const fishGroup1 = new THREE.Group();
-loader.load('/Fishv8.glb', function (gltf) {
-  gltf.scene.position.set(-500, 200, -100);
-  gltf.scene.rotation.y = Math.PI / 2;
-
-  const randomNum = randomInt(2, 3);
-  gltf.scene.scale.setScalar(randomNum);
-  const fishLight1 = new THREE.PointLight(0xffc8c8, 20, randomNum * 20);
-  fishLight1.position.set(gltf.scene.position.x + 5, gltf.scene.position.y + 15, gltf.scene.position.z);
-
-  fishGroup1.add(gltf.scene);
-  fishGroup1.add(fishLight1);
-
-  gsap.effects.float(fishGroup1);
-
-  scene.add(fishGroup1);
-});
-
-const fishGroup2 = new THREE.Group();
-loader.load('/Fishv8.glb', function (gltf) {
-  gltf.scene.position.set(-300, 75, 200);
-  gltf.scene.rotation.y = Math.PI / 2;
-
-  const randomNum = randomInt(1, 2);
-  gltf.scene.scale.setScalar(randomNum);
-  const fishLight2 = new THREE.PointLight(0xffc8c8, 20, randomNum * 20);
-
-  fishLight2.position.set(gltf.scene.position.x + 5, gltf.scene.position.y + 15, gltf.scene.position.z);
-
-  fishGroup2.add(gltf.scene);
-  fishGroup2.add(fishLight2);
-  gsap.effects.float(fishGroup2);
-  scene.add(fishGroup2);
-});
+    scene.add(gltf.scene);
+    scene.add(fishLight);
+  });
+}
 
 //
 //
@@ -387,6 +407,7 @@ loader.load('/Fishv8.glb', function (gltf) {
 /*                                                  ASSET: KOI FISH                                              */
 
 let mixerKoi;
+let sin;
 const koiGroup = new THREE.Group();
 loader.load(
   '/koiFish/scene.gltf',
@@ -421,11 +442,19 @@ loader.load(
       repeatDelay: 5,
     });
     gsap.to(koiGroup.rotation, {
-      x: Math.PI * 0.1,
+      x: Math.PI * 2,
+      // x: Math.PI * 0.1,
       duration: 60,
       repeat: -1,
       ease: 'power2.inOut',
     });
+
+    // gsap.to(koiGroup.position, {
+    //   y: sin * 10,
+    //   duration: 60,
+    //   repeat: -1,
+    //   ease: 'power2.inOut',
+    // });
     // gsap.to(gltf.scene.position, {
     //   y: 45,
     //   duration: 3,
@@ -921,21 +950,14 @@ const animate = () => {
   //   INTERSECTED = null;
   // }
 
-  // gsap.effects.float2([
-  //   fishGroup1.children[0].children[0].material,
-  //   fishGroup1.children[0].children[1].material,
-  //   fishGroup1,
-  // ]);
-
-  // gsap.effects.float(fishGroup1);
-
   const delta = clock.getDelta();
-
-  if (mixer) mixer.update(delta);
+  if (flameMixer) flameMixer.update(delta);
   if (mixerKoi) mixerKoi.update(delta);
 
+  sin = Math.sin(clock.getElapsedTime());
+  // console.log(sin);
+
   controls.update();
-  // controls.update(clock.getDelta());
 
   renderer.render(scene, camera);
 };
