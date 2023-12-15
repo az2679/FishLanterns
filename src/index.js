@@ -38,7 +38,7 @@ const dirLight = new THREE.DirectionalLight(0xcddafd, 0.5);
 dirLight.position.set(0, 50, -100);
 scene.add(dirLight);
 
-for (let i = 0; i < 10; i++) {
+for (let i = 0; i < 5; i++) {
   let randomColL = randomColor({
     luminosity: 'light',
     hue: 'random',
@@ -245,7 +245,7 @@ loader.load(
 //
 /*                                               ASSET: MINI FISH LANTERN                                          */
 
-for (let i = 0; i < 20; i++) {
+for (let i = 0; i < 15; i++) {
   loader.load('/Fishv8.glb', function (gltf) {
     gltf.scene.position.set(-randomInt(3, 4) * 150, randomInt(25, 300), randomIntCondition(150, 300));
     gltf.scene.rotation.y = Math.PI / 2;
