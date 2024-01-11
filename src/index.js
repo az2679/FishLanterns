@@ -71,8 +71,8 @@ const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerH
 //   3000
 // );
 // camera.position.set(200, 100, 400);
-camera.position.set(0, 100, 400);
-camera.lookAt(0, 0, 0);
+camera.position.set(0, 200, 400);
+camera.lookAt(0, 200, 0);
 scene.add(camera);
 
 // axis helper -> X: red, Y: green, Z: blue
