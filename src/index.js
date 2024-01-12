@@ -4,15 +4,7 @@ import { OrbitControls } from 'three/addons/controls/OrbitControls';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { gsap } from 'gsap';
 import randomColor from 'randomcolor'; // https://github.com/davidmerfield/randomColor
-
-import { MapControls } from 'three/addons/controls/MapControls';
-import { FirstPersonControls } from 'three/addons/controls/FirstPersonControls';
-
-const raycaster = new THREE.Raycaster();
-const pointer = new THREE.Vector2();
-
-// intersected object
-let INTERSECTED;
+import Stats from 'stats.js';
 
 // app
 const app = document.querySelector('#app');
@@ -61,28 +53,12 @@ for (let i = 0; i < 10; i++) {
 
 // perspective camera
 const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 3000);
-// orthographic camera
-// const camera = new THREE.OrthographicCamera(
-//   window.innerWidth / -2,
-//   window.innerWidth / 2,
-//   window.innerHeight / 2,
-//   window.innerHeight / -2,
-//   0,
-//   3000
-// );
-// camera.position.set(200, 100, 400);
 camera.position.set(0, 200, 400);
 camera.lookAt(0, 200, 0);
 scene.add(camera);
 
-// axis helper -> X: red, Y: green, Z: blue
-const axesHelper = new THREE.AxesHelper(50);
-axesHelper.position.y = 0.01; // above the ground slightly
-// scene.add(axesHelper);
-
 // control
-const controls = new OrbitControls(camera, renderer.domElement); // orbit control
-// const controls = new MapControls(camera, renderer.domElement); // map control
+const controls = new OrbitControls(camera, renderer.domElement);
 controls.enableDamping = true;
 controls.dampingFactor = 0.05;
 controls.screenSpacePanning = false;
@@ -93,12 +69,6 @@ controls.zoomSpeed = 0.5;
 controls.minDistance = 10;
 controls.maxDistance = 1000;
 
-// first person control
-// const controls = new FirstPersonControls(camera, renderer.domElement);
-// controls.movementSpeed = 100;
-// controls.lookSpeed = 0.02;
-// const clock = new THREE.Clock(); // requires delta time value in update()
-
 /*
 ////////////////////////////////////////////////////////////////////////////////
 */
@@ -107,8 +77,6 @@ controls.maxDistance = 1000;
 const groundGeometry = new THREE.PlaneGeometry(10000, 10000);
 const groundMaterial = new THREE.MeshStandardMaterial({
   color: 0xc1d3fe,
-  // roughness: 0.8,
-  // metalness: 0.2,
   side: THREE.DoubleSide,
 });
 const groundMesh = new THREE.Mesh(groundGeometry, groundMaterial);
@@ -145,8 +113,10 @@ gsap.registerEffect({
   },
   effect: (targets, config) => {
     let tl = gsap.timeline({ repeat: -1 });
+    // console.log(targets);
 
-    tl.to(targets[0].position, { x: 800, duration: config.duration, ease: 'none', stagger: 7 }, '-=1');
+    tl.to(targets[0].position, { x: 800, duration: config.duration, ease: 'none' }, '-=1');
+
     // tl.to(targets[0].children[1].material, { opacity: 1, transparent: false, duration: 1, stagger: 7 })
     //   .to(targets[0].children[0].material, { opacity: 1, transparent: false, duration: 1, stagger: 7 }, '<')
     //   .to(targets[0].position, { x: 800, duration: config.duration, ease: 'none', stagger: 7 }, '-=1')
@@ -163,8 +133,6 @@ const fishLanternGroup = new THREE.Group();
 let flameMixer;
 loader.load(
   '/Fishv8.glb',
-  //Fishv8 internal wires; Fishv6 external wires
-  //75%transmissive, 0 Roughness
 
   function (gltf) {
     console.log(`Fish Lantern gltf: `, gltf);
@@ -245,18 +213,8 @@ loader.load('/Fishv8.glb', function (gltf) {
 
   const fishLight = new THREE.PointLight(0xffc8c8, 50, 40);
   fishLight.position.set(0, 7, 2.5);
-  // const fishLightHelper = new THREE.PointLightHelper(fishLight, 5);
-  // scene.add(fishLightHelper);
   gltf.scene.add(fishLight);
-
-  // gltf.scene.traverse(function (el) {
-  //   if (el.isMesh) {
-  //     el.material.transparent = true;
-  //     el.material.opacity = 0;
-  //   }
-  // });
-  // gsap.effects.float(gltf.scene);
-
+  gsap.effects.float(gltf.scene);
   gltf.scene.name = 'fish';
   fishLight.name = 'fishLight';
   // scene.add(gltf.scene);
@@ -268,6 +226,23 @@ loader.load('/Fishv8.glb', function (gltf) {
     gsap.effects.float(lanternClone).delay(4 * i);
     scene.add(lanternClone);
   }
+
+  // const geometry = gltf.scene.children[0].geometry.clone();
+  // const material = gltf.scene.children[0].material;
+  // const lanternIns = new THREE.InstancedMesh(geometry, material, 10);
+  // scene.add(lanternIns);
+
+  // const miniLanterns = new THREE.Object3D();
+  // for (let i = 0; i < 10; i++) {
+  //   miniLanterns.position.set(-randomInt(3, 4) * 200, randomInt(25, 300), randomIntCondition(150, 300));
+  //   miniLanterns.scale.setScalar(randomInt(2, 6) / 2);
+  //   miniLanterns.rotation.y = Math.PI / 2;
+  //   // gsap.effects.float(miniLanterns).delay(5 * i);
+  //   // gsap.effects.float(miniLanterns).delay(randomInt(0, 30));
+  //   miniLanterns.updateMatrix();
+  //   lanternIns.setMatrixAt(i, miniLanterns.matrix);
+  //   // console.log(gsap.effects.float(miniLanterns));
+  // }
 });
 
 //
@@ -342,12 +317,9 @@ loader.load(
     console.log(`Round Lantern gltf: `, gltf);
 
     gltf.scene.traverse(function (el) {
-      // console.log('traverse: ', el);
       if (el.isMesh) {
-        // console.log('isMesh: ', el);
         el.material._transmission = 1;
         el.material.transparent = true;
-        // el.material.opacity = 0.9;
         el.material.color.r = 0.925;
         el.material.color.g = 0.627;
         el.material.color.b = 1;
@@ -400,7 +372,6 @@ loader.load(
       yoyo: true,
     });
 
-    // scene.add(roundClone);
     roundLanternGroup.add(roundClone);
     scene.add(roundLanternGroup);
   },
@@ -422,59 +393,28 @@ loader.load(
 // resize
 const onResize = () => {
   camera.aspect = window.innerWidth / window.innerHeight;
-  // camera.left = window.innerWidth / -2;
-  // camera.right = window.innerWidth / 2;
-  // camera.top = window.innerHeight / 2;
-  // camera.bottom = window.innerHeight / -2;
   camera.updateProjectionMatrix();
   renderer.setSize(window.innerWidth, window.innerHeight);
 };
 window.addEventListener('resize', onResize);
 
-const onPointerMove = (event) => {
-  pointer.x = (event.clientX / window.innerWidth) * 2 - 1;
-  pointer.y = -(event.clientY / window.innerHeight) * 2 + 1;
-};
-window.addEventListener('pointermove', onPointerMove);
-
-const onClick = () => {
-  if (!INTERSECTED) return;
-
-  const c = randomColor({
-    luminosity: 'bright',
-  });
-  const { r, g, b } = new THREE.Color(c);
-  gsap.to(INTERSECTED.parent.children[2].color, {
-    r,
-    g,
-    b,
-    duration: 1,
-    ease: 'power2.inOut',
-  });
-};
-window.addEventListener('click', onClick);
+// stats
+const stats = new Stats();
+document.body.appendChild(stats.dom);
 
 // animate
 const clock = new THREE.Clock();
 const animate = () => {
   requestAnimationFrame(animate);
 
-  // raycaster.setFromCamera(pointer, camera);
-  // const intersects = raycaster.intersectObjects(scene.children);
-  // if (intersects.length > 0) {
-  //   if (intersects[0].object.name === 'fish' && INTERSECTED != intersects[0].object) {
-  //     INTERSECTED = intersects[0].object;
-  //   }
-  // } else {
-  //   INTERSECTED = null;
-  // }
-
   const delta = clock.getDelta();
   if (flameMixer) flameMixer.update(delta);
   if (mixerKoi) mixerKoi.update(delta);
 
   controls.update();
+  stats.update();
 
+  // console.log(renderer.info.render.calls);
   renderer.render(scene, camera);
 };
 
