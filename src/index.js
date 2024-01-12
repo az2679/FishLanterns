@@ -29,32 +29,34 @@ const dirLight = new THREE.DirectionalLight(0xcddafd, 0.5);
 dirLight.position.set(0, 50, -100);
 scene.add(dirLight);
 
-for (let i = 0; i < 10; i++) {
-  let randomColL = randomColor({
-    luminosity: 'light',
-    hue: 'random',
-  });
-  let randomColR = randomColor({
-    luminosity: 'light',
-    hue: 'random',
-  });
-  const pointLight = new THREE.PointLight(randomColL, 10, 100);
-  pointLight.position.set(-randomInt(150, 300), randomInt(100, 300), randomIntCondition(150, 300));
-  scene.add(pointLight);
-  // const pointLightHelper = new THREE.PointLightHelper(pointLight, 10);
-  // scene.add(pointLightHelper);
+// point lights
 
-  const pointLightR = new THREE.PointLight(randomColR, 10, 100);
-  pointLightR.position.set(randomInt(150, 300), randomInt(100, 300), randomIntCondition(150, 300));
-  scene.add(pointLightR);
-  // const pointLightHelperR = new THREE.PointLightHelper(pointLightR, 10);
-  // scene.add(pointLightHelperR);
-}
+// for (let i = 0; i < 10; i++) {
+//   let randomColL = randomColor({
+//     luminosity: 'light',
+//     hue: 'random',
+//   });
+//   let randomColR = randomColor({
+//     luminosity: 'light',
+//     hue: 'random',
+//   });
+//   const pointLight = new THREE.PointLight(randomColL, 10, 100);
+//   pointLight.position.set(-randomInt(150, 300), randomInt(100, 300), randomIntCondition(150, 300));
+//   scene.add(pointLight);
+//   // const pointLightHelper = new THREE.PointLightHelper(pointLight, 10);
+//   // scene.add(pointLightHelper);
+
+//   const pointLightR = new THREE.PointLight(randomColR, 10, 100);
+//   pointLightR.position.set(randomInt(150, 300), randomInt(100, 300), randomIntCondition(150, 300));
+//   scene.add(pointLightR);
+//   // const pointLightHelperR = new THREE.PointLightHelper(pointLightR, 10);
+//   // scene.add(pointLightHelperR);
+// }
 
 // perspective camera
 const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 3000);
 camera.position.set(0, 200, 400);
-camera.lookAt(0, 200, 0);
+camera.lookAt(0, 100, 0);
 scene.add(camera);
 
 // control
@@ -109,13 +111,13 @@ gsap.registerEffect({
   name: 'float',
   extendTimeline: true,
   defaults: {
-    duration: randomInt(45, 60),
+    duration: randomInt(35, 50),
   },
   effect: (targets, config) => {
     let tl = gsap.timeline({ repeat: -1 });
     // console.log(targets);
 
-    tl.to(targets[0].position, { x: 800, duration: config.duration, ease: 'none' }, '-=1');
+    tl.to(targets[0].position, { x: 1000, duration: config.duration, ease: 'none' }, '-=1');
 
     // tl.to(targets[0].children[1].material, { opacity: 1, transparent: false, duration: 1, stagger: 7 })
     //   .to(targets[0].children[0].material, { opacity: 1, transparent: false, duration: 1, stagger: 7 }, '<')
@@ -206,7 +208,7 @@ loader.load(
 /*                                               ASSET: MINI FISH LANTERN                                          */
 
 loader.load('/Fishv8.glb', function (gltf) {
-  gltf.scene.position.set(-randomInt(3, 4) * 150, randomInt(25, 300), randomIntCondition(150, 300));
+  gltf.scene.position.set(-randomInt(3, 4) * 250, randomInt(25, 300), randomIntCondition(150, 300));
   gltf.scene.rotation.y = Math.PI / 2;
   const randomNum = randomInt(2, 6) / 2;
   gltf.scene.scale.setScalar(randomNum);
@@ -221,7 +223,7 @@ loader.load('/Fishv8.glb', function (gltf) {
 
   for (var i = 0; i < 15; i++) {
     let lanternClone = gltf.scene.clone();
-    lanternClone.position.set(-randomInt(3, 4) * 200, randomInt(25, 300), randomIntCondition(150, 300));
+    lanternClone.position.set(-randomInt(3, 4) * 250, randomInt(25, 300), randomIntCondition(150, 300));
     lanternClone.scale.setScalar(randomInt(2, 6) / 2);
     gsap.effects.float(lanternClone).delay(4 * i);
     scene.add(lanternClone);
@@ -399,8 +401,8 @@ const onResize = () => {
 window.addEventListener('resize', onResize);
 
 // stats
-const stats = new Stats();
-document.body.appendChild(stats.dom);
+// const stats = new Stats();
+// document.body.appendChild(stats.dom);
 
 // animate
 const clock = new THREE.Clock();
@@ -412,7 +414,7 @@ const animate = () => {
   if (mixerKoi) mixerKoi.update(delta);
 
   controls.update();
-  stats.update();
+  // stats.update();
 
   // console.log(renderer.info.render.calls);
   renderer.render(scene, camera);
